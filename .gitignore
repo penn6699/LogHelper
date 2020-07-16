@@ -3,3 +3,4 @@
 /api/api.csproj.user
 /api/obj
 /api/bin
+/api/App_Data/logs

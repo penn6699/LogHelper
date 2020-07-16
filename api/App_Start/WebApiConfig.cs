@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
@@ -38,6 +39,16 @@ namespace api
             //这里用到了QueryStringMapping 类，并传递给他构造函数的参数 new QueryStringMapping("t", "json", "application/json") 
             //和 new QueryStringMapping("t", "xml", "application/xml") 这样就分别对用了json和xml，而前面的“t”表示请求的url地址
             //中参数名称t，下面我们分别来测试下两种请求的参数，地址分别为http://localhost:1001/s/all01?t=xml
+
+            //设置Datetime 到 時間戳 的互轉 
+            JsonSerializerSettings jSettings = new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+                DateTimeZoneHandling = DateTimeZoneHandling.Local
+            };
+            jSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
+            config.Formatters.JsonFormatter.SerializerSettings = jSettings;
+
 
 
 

@@ -3,10 +3,6 @@
 <head>
     <title>日志</title>
     <meta charset="utf-8" />
-    <!--清除缓存-->
-    <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
-    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-    <meta HTTP-EQUIV="Expires" CONTENT="0">
 
     <link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet" />
@@ -21,7 +17,9 @@
     <link href="js/json-viewer/jquery.json-viewer.css" rel="stylesheet" />
 
     <style>
-
+        .logs-wrap {
+            width:100%;
+        }
         pre > a.json-toggle:before {
             left: -0.8em;
         }
@@ -34,7 +32,9 @@
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div id="toolbar" class="tool-bar">
-                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-info" onclick="showLogsList()">查看日志</button>
+                    </div>
                     <select id="year" title="年份">
                         <option value="">年份</option>
                         <option value="2018" selected="selected">2018</option>
@@ -57,6 +57,9 @@
                         <option value="11">11</option>
                         <option value="12">12</option>
                     </select>
+
+                    
+
                 </div>
                 <table id="search_table"></table>
             </div>
@@ -65,6 +68,66 @@
 
     <script>
 
+        //获取来自地址栏（URL）中的一个参数值
+        function getQueryString(key) {
+            /// <summary>获取来自地址栏（URL）中的某个参数值</summary>
+            /// <param name="key" type="String">参数名称</param>
+            /// <returns type="String" />
+            var regExp = new RegExp("[\?|\&]" + key + "=([^&]+)"); //  new RegExp("[\?\&]" + key + "=([^\&]+)(&|$)");
+            var matchStrings = window.location.search.match(regExp);
+            return matchStrings && decodeURIComponent(matchStrings[1]);
+        }
+
+        //获取来自地址栏（URL）中的所有参数值
+        function getQueryStrings() {
+            /// <summary>获取来自地址栏（URL）中的所有参数值</summary>
+            /// <returns type="Json" />
+
+            var matchStrings = window.location.search.match(/[\?\&]\w+=([^&]*)/g);
+            var retJson = {}
+            for (var i = 0; i < matchStrings.length; i++) {
+                retJson[matchStrings[i].match(/\w+/)[0]] = decodeURIComponent(matchStrings[i].split('=')[1]);
+            }
+            return retJson;
+        }
+        //字符串的format 调用方法如："第一名是{0}, 第二名是{1}".format("张三", "王五")); 'name={name},sex={sex}'.format({name:'xxx',sex:1});
+        String.prototype.format = function () {
+            var args = arguments;
+            //如果第一个参数是对象
+            var isObject = typeof (args[0]) === 'object';
+            var re = isObject ? /\{(\w+)\}/g : /\{(\d+)\}/g;
+            var isNull = function (value) {
+                if (typeof (value) === 'object') {
+                    return JSON.stringify(value) || "";
+                }
+                return value == null ? "" : value;
+            };
+            return this.replace(re, function (m, key) {
+                if ((isObject && args[0][key] === undefined) || (!isObject && args[key] === undefined)) {
+                    return "{" + key + "}";
+                }
+                return isObject ? isNull(args[0][key]) : isNull(args[key]);
+            });
+        };
+
+        //去除字符串两端的空格
+        String.prototype.trim = function () {
+            return this.replace(/(^\s*)|(\s*$)/g, '');
+        };
+
+        //数字的四舍五入
+        Number.prototype.round = function (number) {
+            return Math.round(this * Math.pow(10, number)) / Math.pow(10, number);
+        };
+
+        //全局唯一标识符GUID,类似.net中的NewID();
+        function guid() {
+            function S4() {
+                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+            }
+            return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        }
+
         $(function () {
             LogHelper.init(function () {
                 this.refresh();
@@ -72,44 +135,24 @@
          
         });
 
-
+        var _ApiHost = 'http://localhost:20572';
         //检测步骤
         var LogHelper = (function () {
-            var _ApiHost = "", _log_action="", $table;
+            var _log_action="", $table;
 
             var _dal = {
                 "GetLogList": function (year, month, callback) {
                     $.ajax({
-                        url: _ApiHost + "/Log/List",
+                        url: _ApiHost + "/Log/SearchLogDbFiles",
                         type: "get",
                         data: { "year": year, "month": month, "log_action": _log_action },
                         dataType: "json",
                         success: function (res) {
-                            if (res.success) {
-                                callback(res.data || []);
-                            }
-                            else {
-                                layer.alert(res.message);
-                            }
+                            callback(res || []);
                         }
                     });
                 }
-                , "GetLogData": function (fileName, callback) {
-                    $.ajax({
-                        url: _ApiHost + "/Log/Read",
-                        type: "get",
-                        data: { "fileName": fileName, "log_action": _log_action },
-                        dataType: "json",
-                        success: function (res) {
-                            if (res.success) {
-                                callback(res.data || []);
-                            }
-                            else {
-                                layer.alert(res.message);
-                            }
-                        }
-                    });
-                }
+                
             };
 
             //数据容量单位转换(kb,mb,gb,tb)
@@ -139,7 +182,7 @@
 
             function init(callback) {
                 var _this = this;
-                _ApiHost = ApiHost;
+                
                 _log_action = getQueryString("log_action") || "";
                 $table = $("#search_table");
 
@@ -174,6 +217,29 @@
                     onRefresh: function (params) { refresh(); },
                     onSearch: function (text) { },
                     columns: [
+                        { checkbox: true },
+                        //{
+                        //    //field: 'operate',
+                        //    //title: '操作',
+                        //    align: 'center',
+                        //    width: '60px',
+                        //    events: {
+                        //        "click .btn-log": function (event, value, row, index) {
+                        //            showLogsList(row);
+                        //        }
+                                
+                        //    },
+                        //    formatter: function (value, row, index) {
+
+                        //        var btn_tmpl = ['<div class="btn-group">'];
+
+                        //        btn_tmpl.push('<button type="button" class="btn btn-info btn-xs btn-log" >查看日志</button>');
+
+                        //        btn_tmpl.push('</div>');
+
+                        //        return btn_tmpl.join('');
+                        //    }
+                        //},
                         {
                             title: '序号',
                             width: '60px',
@@ -184,23 +250,26 @@
                         },
                         
                         
-                        { field: 'year', title: '年份', align: 'center', width: '100px', sortable: true },
+                        //{ field: 'year', title: '年份', align: 'center', width: '100px', sortable: true },
+                        //{
+                        //    field: 'month', title: '月份', align: "center", width: '100px', sortable: true
+                        //    , formatter: function (value, row, index) {
+                        //        return parseInt(value) || value;
+                        //    }
+                        //},
+                        { field: 'date', title: '日期', align: 'center', width: '100px', sortable: true },
+                        { field: 'level', title: '等级', width: '100px', sortable: true },
+                        { field: 'fileName', title: '文件名', width: '200px', sortable: true },
+                        
+                        
                         {
-                            field: 'month', title: '月份', align: "center", width: '100px', sortable: true
-                            , formatter: function (value, row, index) {
-                                return parseInt(value) || value;
-                            }
-                        },
-                        { field: 'fileName', title: '文件名', sortable: true },
-                        { field: 'filePath', title: '文件Path', sortable: true,visible:false },
-                        { field: 'fileUpdateTime', title: '更新时间', align: "center", sortable: true },
-                        {
-                            field: 'fileSize', title: '文件大小', align: "center", sortable: true
+                            field: 'fileSize', title: '文件大小', align: "center", width: '100px', sortable: true
                             , formatter: function (value, row, index) {
                                 return getFileSize(value);
                             }
-                        }
-                        
+                        },
+                        { field: 'fileUpdateTime', title: '更新时间', align: "center", width: '150px', sortable: true },
+                        { field: 'filePath', title: '文件Path', sortable: true, visible: true }
                     ]
 
                     , detailView: true
@@ -222,6 +291,7 @@
             //刷新
             function refresh() {
                 _dal.GetLogList($("#year").val(), $("#month").val(), function (rData) {
+                    console.log(rData);
                     $table.bootstrapTable("load", rData);
                 });
             }
@@ -237,45 +307,35 @@
 
         //日志 
         function LogFile() {
-            var _ApiHost, _log_action = "", _rowData, $detailTable;
+            var _log_action = "", _rowData, $detailTable;
             //接口
             var _dal = {
-                "GetLogDataList": function (filePath, callback) {
+                "GetLogDataList": function (path, callback) {
                     $.ajax({
-                        url: _ApiHost + "/Log/Read",
+                        url: _ApiHost + "/Log/GetLogs",
                         type: "get",
-                        data: { "filePath": filePath, "log_action": _log_action },
+                        data: { "path": path },
                         dataType: "json",
                         success: function (res) {
-                            if (res.success) {
-                                callback(res.data || []);
-                            }
-                            else {
-                                layer.alert(res.message);
-                            }
+                            callback(res || []);
                         }
                     });
                 }
-                , "GetLogData": function (filePath,ID, callback) {
+                , "GetLogData": function (path,id, callback) {
                     $.ajax({
                         url: _ApiHost + "/Log/GetLogData",
                         type: "get",
-                        data: { "filePath": filePath, "ID": ID, "log_action": _log_action },
+                        data: { "path": path, "id": id },
                         dataType: "json",
                         success: function (res) {
-                            if (res.success) {
-                                callback(res.data || []);
-                            }
-                            else {
-                                layer.alert(res.message);
-                            }
+                            callback(res || []);
                         }
                     });
                 }
             };
 
             function init(rowIndex, rowData, $detail, callback) {
-                _ApiHost = ApiHost;
+                
                 _rowData = rowData;
                 _log_action = getQueryString("log_action") || "";
                 var _tmpl = [
@@ -499,6 +559,189 @@
 
 
         }
+
+
+
+
+
+        //显示
+        function showLogsList(row) {
+
+
+
+            var tableID = guid();
+            var toolID = guid();
+
+            //tmpl
+            {
+                var tmpl = ['<div class="labware-list-wrap" style="padding:10px 10px 80px 10px;">'];
+
+                tmpl.push('<div class="panel panel-default" style="margin-bottom:10px;">');
+                tmpl.push('<div class="panel-heading"><span class="panel-title">查询</span>');
+                tmpl.push('<span class="pull-right" role="button" data-toggle="collapse" data-target="#sample_search_{0}" style="color:#ababab;padding-top: 1px;">'.format(toolID));
+                tmpl.push('<i class="glyphicon glyphicon-chevron-up" title="收起"></i><i class="glyphicon glyphicon-chevron-down" title="展开"></i></span></div>');
+                tmpl.push('<div class="panel-body collapse in search-wrap " id="sample_search_{0}">'.format(toolID));
+                tmpl.push('<div class="container" style="width:100%;"><div class="row">');
+
+
+                tmpl.push('<div class="col-sm-4 col-md-4"><div class="input-group"><div class="input-group-addon">分类</div>');
+                tmpl.push('<input type="text" class="form-control" name="cp_name" value="" /></div></div>');
+
+                tmpl.push('<div class="col-sm-4 col-md-4"><div class="input-group"><div class="input-group-addon">流程名称</div>');
+                tmpl.push('<input type="text" class="form-control" name="cw_name" value="" /></div></div>');
+
+                tmpl.push('<div class="col-sm-4 col-md-4"><div class="input-group"><div class="input-group-addon">样本类型</div>');
+                tmpl.push('<select class="form-control" name="sp_id"><option value="">请选择</option></select></div></div>');
+
+
+                //tmpl.push('<div class="col-sm-12 col-md-12"><div class="btn-group">');
+                //tmpl.push('<button class="btn btn-success btn-logs-search">查询</button></div></div></div></div></div></div>');
+
+                tmpl.push('</div></div></div></div>');
+
+                tmpl.push('<div id="{0}" class="tool-bar"><div class="btn-group">'.format(toolID));
+                tmpl.push('<button class="btn btn-success btn-logs-search">查询</button>');
+                tmpl.push('</div></div><table id="{0}"></table>'.format(tableID));
+
+
+                tmpl.push('</div>');
+            }
+
+
+            layer.open({
+                title: '<b><i class="glyphicon glyphicon-erase"></i>&nbsp;“{fileName}”的日志列表</b>'.format(row)
+                , type: 1
+                , maxmin: true
+                , shade: 0
+                , scrollbar:false
+
+                , content: tmpl.join("")
+                , area: ["98%", "98%"]
+                , success: function (layero, layerIndex) {
+                    //layer.full(layerIndex);
+                    var $logTable = $("#" + tableID);
+                    var _toolbarMoreSelect = "#" + toolID;
+
+                    $logTable.bootstrapTable({
+
+                        toolbar: _toolbarMoreSelect,    
+                        striped: true,                  
+                        cache: false,
+                        pagination: false,              
+                        sidePagination: "client",       
+                        pageNumber: 1,                  
+                        pageSize: 10,                   
+                        pageList: [10, 30, 50, 70, 100, 150, 200, 250, 300, 400, 500],        //可供选择的每页的行数（*）
+
+                        sortable: true,               
+                        //sortName: "is_urgent",
+                        //sortOrder: "desc",          
+
+                        search: true,                 
+                        showColumns: true,            
+                        showRefresh: true,            
+                        minimumCountColumns: 2,       
+                        uniqueId: "cl_id",            
+                        onRefresh: function (params) {
+
+                            loadLogs();
+                        },
+                        onSearch: function (text) { },
+                        onPostBody: function () {
+
+                        },
+                        columns: [
+                            //{ checkbox: true },
+                            {
+                                field: 'operate',
+                                title: '信息详情',
+                                align: 'center',
+                                width: '120px',
+                                events: {
+                                    "click .btn-info": function (event, value, row, index) {
+                                        
+                                    }
+                                    , "click .btn-data": function (event, value, row, index) {
+
+                                    }
+
+                                },
+                                formatter: function (value, row, index) {
+
+                                    var btn_tmpl = ['<div class="btn-group">'];
+
+                                    btn_tmpl.push('<button type="button" class="btn btn-info btn-sm btn-info" >信息</button>');
+
+                                    btn_tmpl.push('<button type="button" class="btn btn-success btn-sm btn-data" >数据</button>');
+
+                                    btn_tmpl.push('</div>');
+
+                                    return btn_tmpl.join('');
+                                }
+                            },
+                            { field: 'index', width: '40px', align: 'center', formatter: function (value, row, index) { return index + 1; } },
+                            
+                            { field: 'aaaaa', title: '时间', sortable: true },
+                            { field: 'aaaaa', title: '等级', sortable: true },
+                            { field: 'aaaaa', title: '类型', sortable: true },
+                            { field: 'aaaaa', title: '访问IP', sortable: true },
+                            { field: 'aaaaa', title: '操作人ID', sortable: true },
+                            { field: 'aaaaa', title: '操作人', sortable: true },
+                            { field: 'aaaaa', title: '信息', sortable: true }
+
+                        ]
+
+
+                    });
+
+                    //加载数据
+                    var loadLogs = function () {
+                        
+                    };
+                    loadLogs();
+
+                    //查询
+                    layero.find('.btn-logs-search').click(function () {
+                        loadLogs();
+                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+
+            });
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     </script>

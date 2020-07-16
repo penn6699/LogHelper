@@ -29,7 +29,7 @@ using Newtonsoft.Json;
 /// <summary>
 /// 系统日志助手
 /// </summary>
-public static class LogHelper
+public sealed class LogHelper
 {
 
     #region JsonHelper
@@ -161,10 +161,10 @@ public static class LogHelper
     #endregion
 
 
-    #region LogContent
+    #region 内部类
 
     /// <summary>
-    /// 
+    /// 日志内容
     /// </summary>
     [Serializable]
     private class LogContent
@@ -211,6 +211,40 @@ public static class LogHelper
         /// </summary>
         public LogContent() { Time = DateTime.Now; }
 
+    }
+    /// <summary>
+    /// 日志数据文件信息
+    /// </summary>
+    [Serializable]
+    public class LogDbFile
+    {
+        /// <summary>
+        /// 4位年份
+        /// </summary>
+        public string year = null;
+        /// <summary>
+        /// 2位月份
+        /// </summary>
+        public string month = null;
+        public string date = null;
+        public DateTime logTime;
+        public string level = null;
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        public string fileName = null;
+        /// <summary>
+        /// 文件相对路径
+        /// </summary>
+        public string filePath = null;
+        /// <summary>
+        /// 更新时间
+        /// </summary>
+        public DateTime? fileUpdateTime = null;
+        /// <summary>
+        /// 文件大小。单位/字节
+        /// </summary>
+        public long fileSize = 0;
     }
 
     #endregion
@@ -494,11 +528,14 @@ CREATE TABLE IF NOT EXISTS Logs (
         /// <summary>
         /// 获取日志列表
         /// </summary>
+        /// <param name="yearStr"></param>
+        /// <param name="monthStr"></param>
+        /// <param name="level"></param>
         /// <returns></returns>
-        public static List<Dictionary<string, object>> GetLogDbFileList(string yearStr = "", string monthStr = "")
+        public static List<LogDbFile> GetLogDbFileList(string yearStr = "", string monthStr = "", string level = "")
         {
 
-            List<Dictionary<string, object>> res = new List<Dictionary<string, object>>();
+            List<LogDbFile> res = new List<LogDbFile>();
             string logPath = LogDbPathRoot;
 
             if (!Directory.Exists(logPath))
@@ -516,15 +553,27 @@ CREATE TABLE IF NOT EXISTS Logs (
 
                     foreach (FileInfo logFile in month.GetFiles())
                     {
-                        Dictionary<string, object> log = new Dictionary<string, object>();
-                        log.Add("year", year.Name);
-                        log.Add("month", month.Name);
-                        log.Add("fileName", logFile.Name);
-                        log.Add("filePath", string.Format(@"{0}\{1}\{2}", year.Name, month.Name, logFile.Name));
-                        log.Add("fileUpdateTime", logFile.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
-                        log.Add("fileSize", logFile.Length);//字节
+                        
+                        if (!string.IsNullOrEmpty(level) && !logFile.Name.Contains(level)) { continue; }
+                        try
+                        {
+                            LogDbFile logDb = new LogDbFile();
+                            logDb.year = year.Name;
+                            logDb.month = month.Name;
+                            logDb.fileName = logFile.Name;
+                            logDb.filePath = string.Format(@"{0}\{1}\{2}", year.Name, month.Name, logFile.Name);
+                            logDb.fileUpdateTime = logFile.LastWriteTime;
+                            logDb.fileSize = logFile.Length;
 
-                        res.Add(log);
+                            logDb.date = logFile.Name.Substring(0, 8);
+                            logDb.level = Path.GetFileNameWithoutExtension(logFile.Name).Replace(logDb.date + "_", "");
+                            logDb.logTime = DateTime.Parse(logDb.year + "-" + logDb.month + "-" + logFile.Name.Substring(6, 2) + " 00:00:00");
+
+                            res.Add(logDb);
+                        }
+                        catch(Exception exp) {
+                            LogHelper.Error("读取日志列表异常。文件“" + logFile.Name +"”不符合日志数据命名格式。"+ exp.Message, exp);
+                        }
                     }
                 }
             }
@@ -802,9 +851,10 @@ CREATE TABLE IF NOT EXISTS Logs (
     /// </summary>
     /// <param name="yearStr">4位年份字符串</param>
     /// <param name="monthStr">2位月份字符串</param>
+    /// <param name="level">日志等级</param>
     /// <returns></returns>
-    public static List<Dictionary<string, object>> GetLogDbFileList(string yearStr = "", string monthStr = "") {
-        return LogDbHelper.GetLogDbFileList(yearStr, monthStr);
+    public static List<LogDbFile> GetLogDbFileList(string yearStr = "", string monthStr = "", string level = "") {
+        return LogDbHelper.GetLogDbFileList(yearStr, monthStr, level);
     }
     /// <summary>
     /// 获取日志列表

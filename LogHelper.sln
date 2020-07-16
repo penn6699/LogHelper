@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api\api.csproj", "{8FBB4131-77C6-4F2E-8E1A-1CDADC7CFBAE}"
-EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{89A6024F-E036-4C25-8991-1958E0DFE87E}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
@@ -23,7 +21,10 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{89A6024F-E0
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "20668"
+		SlnRelativePath = "web\"
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{EC702F1A-F615-424F-8C76-9F30764BB0F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +32,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8FBB4131-77C6-4F2E-8E1A-1CDADC7CFBAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8FBB4131-77C6-4F2E-8E1A-1CDADC7CFBAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8FBB4131-77C6-4F2E-8E1A-1CDADC7CFBAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8FBB4131-77C6-4F2E-8E1A-1CDADC7CFBAE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
