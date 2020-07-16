@@ -1,0 +1,5 @@
+/.vs
+/packages
+/api/api.csproj.user
+/api/obj
+/api/bin
