@@ -586,7 +586,11 @@ CREATE TABLE IF NOT EXISTS Logs (
         /// </summary>
         /// <param name="DbFilePath">数据库相对URL</param>
         /// <returns></returns>
-        public static DataTable GetLogs(string DbFilePath)
+        public static DataTable GetLogs(string DbFilePath
+            ,string bTime="",string eTime="",string Level="", string Type = "", string UserID = ""
+            , string UserName = "", string UserIP = "", string Message = "", string Data = ""
+
+            )
         {
 
             string DbPath = LogDbPathRoot + "\\" + DbFilePath;
@@ -594,11 +598,77 @@ CREATE TABLE IF NOT EXISTS Logs (
             conn.Open();
             string sql = @"SELECT ID,Time,Level,Type,UserID,UserName,UserIP,Message FROM Logs";
 
+            List<string> whereList = new List<string>();
+            List<SQLiteParameter> parList = new List<SQLiteParameter>();
+
+            #region where par
+
+            if (!string.IsNullOrEmpty(bTime)) {
+                whereList.Add(@" Time >= @bTime ");
+                parList.Add(new SQLiteParameter("@bTime", bTime));
+            }
+            if (!string.IsNullOrEmpty(eTime))
+            {
+                whereList.Add(@" Time <= @eTime ");
+                parList.Add(new SQLiteParameter("@eTime", eTime));
+            }
+            if (!string.IsNullOrEmpty(Level))
+            {
+                whereList.Add(@" Level=@Level ");
+                parList.Add(new SQLiteParameter("@Level", Level));
+            }
+
+            if (!string.IsNullOrEmpty(Type))
+            {
+                whereList.Add(@" Type like '%'||@Type||'%' ");
+                parList.Add(new SQLiteParameter("@Type", Type));
+            }
+            if (!string.IsNullOrEmpty(UserID))
+            {
+                whereList.Add(@" UserID=@UserID ");
+                parList.Add(new SQLiteParameter("@UserID", UserID));
+            }
+            if (!string.IsNullOrEmpty(UserName))
+            {
+                whereList.Add(@" UserName like '%'||@UserName||'%' ");
+                parList.Add(new SQLiteParameter("@UserName", UserName));
+            }
+
+            if (!string.IsNullOrEmpty(UserIP))
+            {
+                whereList.Add(@" UserIP like '%'||@UserIP||'%' ");
+                parList.Add(new SQLiteParameter("@UserIP", UserIP));
+            }
+            if (!string.IsNullOrEmpty(Message))
+            {
+                whereList.Add(@" Message like '%'||@Message||'%' ");
+                parList.Add(new SQLiteParameter("@Message", Message));
+            }
+            if (!string.IsNullOrEmpty(Data))
+            {
+                whereList.Add(@" Data like '%'||@Data||'%' ");
+                parList.Add(new SQLiteParameter("@Data", Data));
+            }
+
+
+            #endregion
+
+
+            if (whereList.Count>0) {
+                sql += @" where " + string.Join(" and ", whereList);
+            }
+
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
             {
                 System.Data.Common.DbTransaction transaction = cmd.Connection.BeginTransaction();
                 try
                 {
+                    if (parList.Count > 0)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddRange(parList.ToArray());
+                    }
+
                     SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
                     DataTable data = new DataTable();
                     adapter.Fill(data);
@@ -860,9 +930,23 @@ CREATE TABLE IF NOT EXISTS Logs (
     /// 获取日志列表
     /// </summary>
     /// <param name="DbFilePath">数据库相对URL</param>
+    /// <param name="bTime">开始时间</param>
+    /// <param name="eTime">结束时间</param>
+    /// <param name="Level">等级</param>
+    /// <param name="Type">类型</param>
+    /// <param name="UserID">用户ID</param>
+    /// <param name="UserName">用户名</param>
+    /// <param name="UserIP">访问IP</param>
+    /// <param name="Message">消息</param>
+    /// <param name="Data">数据</param>
     /// <returns></returns>
-    public static DataTable GetLogs(string DbFilePath) {
-        return LogDbHelper.GetLogs(DbFilePath);
+    public static DataTable GetLogs(string DbFilePath
+            , string bTime = "", string eTime = "", string Level = "", string Type = "", string UserID = ""
+            , string UserName = "", string UserIP = "", string Message = "", string Data = ""
+
+        )
+    {
+        return LogDbHelper.GetLogs(DbFilePath, bTime, eTime, Level, Type, UserID, UserName, UserIP, Message, Data);
     }
     /// <summary>
     /// 获取日志数据
