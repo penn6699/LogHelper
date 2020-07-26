@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>日志</title>
+    <meta charset="utf-8" />
+
+    <link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet" />
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="js/layer/layer.js"></script>
+    <script src="js/laydate/laydate.js"></script>
+    <script src="js/json-viewer/jquery.json-viewer.js"></script>
+    <link href="js/json-viewer/jquery.json-viewer.css" rel="stylesheet" />
+    <link href="js/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" />
+    <script src="js/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="js/bootstrap-select/i18n/defaults-zh_CN.min.js"></script>
+    <script src="js/log.js"></script>
+    <link href="css/log.css" rel="stylesheet" />
+    <style>
+    </style>
+
+</head>
+<body>
+
+    <div class="container logs-wrap">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="panel panel-default" style="margin:10px auto;">
+                    <div class="panel-heading">
+                        <span class="panel-title">查询</span>
+                        <span class="pull-right" role="button" data-toggle="collapse" data-target="#log_db_search" style="color:#ababab;padding-top: 1px;">
+                            <i class="glyphicon glyphicon-chevron-up" title="收起"></i>
+                            <i class="glyphicon glyphicon-chevron-down" title="展开"></i>
+                        </span>
+                    </div>
+                    <div class="panel-body collapse in" id="log_db_search">
+                        <div class="container" style="width:100%;">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">日期</div>
+                                        <input type="text" class="form-control" name="bDate" value="" placeholder="开始日期" title="开始日期"
+                                            readonly="readonly" style="cursor: pointer;background-color: #ffffff;" />
+                                        <div class="input-group-addon" style="border-left:none;border-right:none;padding:0 5px;">至</div>
+                                        <input type="text" class="form-control" name="eDate" value="" placeholder="结束日期" title="结束日期"
+                                            readonly="readonly" style="cursor: pointer;background-color: #ffffff;" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">等级</div>
+                                        <select class="form-control" name="Level" >
+                                            <option value="debug">debug</option>
+                                            <option value="trace">trace</option>
+                                            <option value="error">error</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-info" onclick="LogHelper.refresh()">查&nbsp;询</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="toolbar" class="tool-bar">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-success" onclick="LogHelper.showLogsList()">查看日志</button>
+                    </div>
+                </div>
+                <table id="search_table"></table>
+            </div>
+        </div>
+    </div>
+    <script>
+        
+
+        $(function () {
+            
+            LogHelper.init(function () {
+                this.refresh();
+            });
+         
+        });
+
+        
+        
+    </script>
+
+
+</body>
+</html>

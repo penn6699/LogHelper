@@ -14,23 +14,12 @@ namespace api.Controllers
     [EnableCors("*","*","*",SupportsCredentials =true)]
     public class LogController : ApiController
     {
+        
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="yearStr"></param>
-        /// <param name="monthStr"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public dynamic SearchLogDbFiles(string yearStr = "", string monthStr = "", string level = "") {
-            return LogHelper.GetLogDbFileList(yearStr, monthStr, level);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="yearStr"></param>
-        /// <param name="monthStr"></param>
+        /// <param name="bDate"></param>
+        /// <param name="eDate"></param>
         /// <param name="level"></param>
         /// <returns></returns>
         [HttpGet]
@@ -81,16 +70,53 @@ namespace api.Controllers
 
             return logFiles;
         }
-
-        [HttpGet]
-        public dynamic GetLogs(string path
-             , string bTime = "", string eTime = "", string Level = "", string Type = "", string UserID = ""
-            , string UserName = "", string UserIP = "", string Message = "", string Data = ""
-            )
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet,HttpPost]
+        public dynamic GetLogs()
         {
-            return LogHelper.GetLogs(path, bTime, eTime, Level, Type, UserID, UserName, UserIP, Message, Data);
-        }
 
+            System.Web.HttpRequest Request = System.Web.HttpContext.Current.Request;
+            string path = Request["path"] ?? "";
+            string bTime = Request["bTime"] ?? "";
+            string eTime = Request["eTime"] ?? "";
+            
+            string Type = Request["Type"] ?? "";
+            string UserID = Request["UserID"] ?? "";
+            string UserName = Request["UserName"] ?? "";
+            string UserIP = Request["UserIP"] ?? "";
+            string Message = Request["Message"] ?? "";
+            string Data = Request["Data"] ?? "";
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return new List<Dictionary<string, object>>();
+            }
+            if (path.Contains(',')) {
+                List<Dictionary<string, object>> logs = new List<Dictionary<string, object>>();
+
+                foreach (string _path in path.Split(new char[] { ',' })) {
+                    if (!string.IsNullOrEmpty(_path))
+                    {
+                        logs.AddRange(LogHelper.GetLogs2(_path, bTime, eTime, Type, UserID, UserName, UserIP, Message, Data));
+                    }
+                }
+                return logs;
+            }
+            else
+            {
+                return LogHelper.GetLogs2(path, bTime, eTime, Type, UserID, UserName, UserIP, Message, Data);
+            }
+
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public dynamic GetLogData(string path,string id)
         {

@@ -1,0 +1,36 @@
+﻿.logs-wrap {
+    width: 100%;
+}
+
+pre > a.json-toggle:before {
+    left: -0.8em;
+}
+
+.panel > .panel-heading {
+    border-left: 1px solid #ddd;
+}
+
+.panel .glyphicon-chevron-up,
+.panel .collapsed .glyphicon-chevron-down {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+.panel .glyphicon-chevron-down,
+.panel .collapsed .glyphicon-chevron-up {
+    display: none;
+}
+
+.tool-bar select {
+    font-size: 14px;
+    padding: 7px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+.input-group {
+    margin-bottom: 7px;
+}

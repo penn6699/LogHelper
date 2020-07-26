@@ -3,27 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{89A6024F-E036-4C25-8991-1958E0DFE87E}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_20668"
-		Debug.AspNetCompiler.PhysicalPath = "web\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_20668\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_20668"
-		Release.AspNetCompiler.PhysicalPath = "web\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_20668\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "20668"
-		SlnRelativePath = "web\"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{EC702F1A-F615-424F-8C76-9F30764BB0F8}"
 EndProject
 Global
@@ -32,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{89A6024F-E036-4C25-8991-1958E0DFE87E}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC702F1A-F615-424F-8C76-9F30764BB0F8}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -587,7 +587,7 @@ CREATE TABLE IF NOT EXISTS Logs (
         /// <param name="DbFilePath">数据库相对URL</param>
         /// <returns></returns>
         public static DataTable GetLogs(string DbFilePath
-            ,string bTime="",string eTime="",string Level="", string Type = "", string UserID = ""
+            ,string bTime="",string eTime="", string Type = "", string UserID = ""
             , string UserName = "", string UserIP = "", string Message = "", string Data = ""
 
             )
@@ -612,12 +612,7 @@ CREATE TABLE IF NOT EXISTS Logs (
                 whereList.Add(@" Time <= @eTime ");
                 parList.Add(new SQLiteParameter("@eTime", eTime));
             }
-            if (!string.IsNullOrEmpty(Level))
-            {
-                whereList.Add(@" Level=@Level ");
-                parList.Add(new SQLiteParameter("@Level", Level));
-            }
-
+            
             if (!string.IsNullOrEmpty(Type))
             {
                 whereList.Add(@" Type like '%'||@Type||'%' ");
@@ -941,13 +936,48 @@ CREATE TABLE IF NOT EXISTS Logs (
     /// <param name="Data">数据</param>
     /// <returns></returns>
     public static DataTable GetLogs(string DbFilePath
-            , string bTime = "", string eTime = "", string Level = "", string Type = "", string UserID = ""
+            , string bTime = "", string eTime = "", string Type = "", string UserID = ""
             , string UserName = "", string UserIP = "", string Message = "", string Data = ""
-
         )
     {
-        return LogDbHelper.GetLogs(DbFilePath, bTime, eTime, Level, Type, UserID, UserName, UserIP, Message, Data);
+        return LogDbHelper.GetLogs(DbFilePath, bTime, eTime, Type, UserID, UserName, UserIP, Message, Data);
     }
+    /// <summary>
+    /// 获取日志列表
+    /// </summary>
+    /// <param name="DbFilePath">数据库相对URL</param>
+    /// <param name="bTime">开始时间</param>
+    /// <param name="eTime">结束时间</param>
+    /// <param name="Level">等级</param>
+    /// <param name="Type">类型</param>
+    /// <param name="UserID">用户ID</param>
+    /// <param name="UserName">用户名</param>
+    /// <param name="UserIP">访问IP</param>
+    /// <param name="Message">消息</param>
+    /// <param name="Data">数据</param>
+    /// <returns></returns>
+    public static List<Dictionary<string,object>> GetLogs2(string DbFilePath
+            , string bTime = "", string eTime = "", string Type = "", string UserID = ""
+            , string UserName = "", string UserIP = "", string Message = "", string Data = ""
+        )
+    {
+        using (DataTable dt = LogDbHelper.GetLogs(DbFilePath, bTime, eTime, Type, UserID, UserName, UserIP, Message, Data)) {
+            List<Dictionary<string, object>> table = new List<Dictionary<string, object>>();
+
+            foreach (DataRow row in dt.Rows) {
+                Dictionary<string, object> _row = new Dictionary<string, object>();
+                _row["fileName"] = Path.GetFileName(DbFilePath);
+                _row["filePath"] = DbFilePath;
+                foreach (DataColumn dc in dt.Columns) {
+                    _row[dc.ColumnName] = row[dc.ColumnName];
+                }
+                table.Add(_row);
+            }
+            return table;
+        }
+        
+    }
+
     /// <summary>
     /// 获取日志数据
     /// </summary>
@@ -957,6 +987,9 @@ CREATE TABLE IF NOT EXISTS Logs (
     public static DataTable GetLogData(string DbFilePath, string ID) {
         return LogDbHelper.GetLogData(DbFilePath, ID);
     }
+
+    
+
 
     #endregion
 
