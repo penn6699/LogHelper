@@ -120,7 +120,7 @@ var LogHelper = (function () {
 
     function init(callback) {
         var _this = this;
-        _ApiHost = location.protocol + '//' + location.host;
+        _ApiHost = location.href.split('/log/index.html')[0];
         _log_action = getQueryString("log_action") || "";
         $table = $("#search_table");
 
