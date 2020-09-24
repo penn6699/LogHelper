@@ -22,7 +22,7 @@ namespace api.Controllers
         /// <param name="eDate"></param>
         /// <param name="level"></param>
         /// <returns></returns>
-        [HttpGet, JsonDateTimeFormat("yyyy-MM-dd HH:mm:ss")]
+        [HttpGet, LogJsonDateTimeFormat("yyyy-MM-dd HH:mm:ss")]
         public dynamic SearchLogDatabase(string bDate = "", string eDate = "", string level = "")
         {
             List<LogHelper.LogDbFile> logFiles = new List<LogHelper.LogDbFile>();
@@ -74,7 +74,7 @@ namespace api.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
-        [HttpGet,HttpPost, JsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+        [HttpGet,HttpPost, LogJsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
         public dynamic GetLogs()
         {
 
@@ -117,7 +117,7 @@ namespace api.Controllers
         /// <param name="path"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet, JsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+        [HttpGet, LogJsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
         public dynamic GetLogData(string path,string id)
         {
             return LogHelper.GetLogData(path,id);
@@ -125,7 +125,7 @@ namespace api.Controllers
 
 
 
-        [HttpGet, JsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+        [HttpGet, LogJsonDateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
         public dynamic test()
         {
 
